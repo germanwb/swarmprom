@@ -31,7 +31,6 @@ services:
       - source: dockerd_config
         target: /etc/caddy/Caddyfile
     deploy:
-      mode: global
       resources:
         limits:
           memory: 128M
@@ -50,7 +49,6 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     deploy:
-      mode: global
       resources:
         limits:
           memory: 128M
@@ -75,7 +73,6 @@ services:
     volumes:
       - grafana:/var/lib/grafana
     deploy:
-      mode: replicated
       replicas: 1
       placement:
         constraints:
@@ -90,17 +87,12 @@ services:
     image: stefanprodan/swarmprom-alertmanager:v0.14.0
     networks:
       - net
-    environment:
-      - SLACK_URL=${SLACK_URL:-https://hooks.slack.com/services/TOKEN}
-      - SLACK_CHANNEL=${SLACK_CHANNEL:-general}
-      - SLACK_USER=${SLACK_USER:-alertmanager}
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
     volumes:
       - alertmanager:/alertmanager
     deploy:
-      mode: replicated
       replicas: 1
       placement:
         constraints:
@@ -118,7 +110,6 @@ services:
     environment:
       - "ALERTMANAGER_URIS=default:http://alertmanager:9093"
     deploy:
-      mode: replicated
       replicas: 1
 
   node-exporter:
@@ -139,7 +130,6 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
       - '--no-collector.ipvs'
     deploy:
-      mode: global
       resources:
         limits:
           memory: 128M
@@ -162,11 +152,7 @@ services:
       - source: task_rules
         target: /etc/prometheus/swarm_task.rules.yml
     deploy:
-      mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
       resources:
         limits:
           memory: 2048M
@@ -189,11 +175,7 @@ services:
       - source: caddy_config
         target: /etc/caddy/Caddyfile
     deploy:
-      mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
       resources:
         limits:
           memory: 128M
